@@ -21,7 +21,9 @@ public class ProductService
         List<Product> products = categoryId != null
                 ? productRepository.findByCategoryId(categoryId)
                 : productRepository.findAll();
-
+//the search method was filtering results with Product::isFeatured.
+// Which caused non-featured products to be excluded.
+// After removing that filter, GET /products now returns 62 items, matching the 62 products in the database
         return products.stream()
                        .filter(p -> minPrice == null || p.getPrice() >= minPrice)
                        .filter(p -> maxPrice == null || p.getPrice() <= maxPrice)
@@ -48,13 +50,17 @@ public class ProductService
     public Product update(int productId, Product product)
     {
         Product existing = productRepository.findById(productId).orElseThrow();
+     //the update() method in ProductService was not updating the stock field.
         existing.setName(product.getName());
         existing.setPrice(product.getPrice());
         existing.setCategoryId(product.getCategoryId());
         existing.setDescription(product.getDescription());
         existing.setSubCategory(product.getSubCategory());
+        //Added existing.setStock(product.getStock()); to the update logic.
+        existing.setStock(product.getStock());
         existing.setFeatured(product.isFeatured());
         existing.setImageUrl(product.getImageUrl());
+
         return productRepository.save(existing);
     }
 
